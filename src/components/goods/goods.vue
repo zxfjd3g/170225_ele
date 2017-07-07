@@ -1,17 +1,17 @@
 <template>
   <div>
     <div class="goods">
-      <div class="menu-wrapper">
+      <div class="menu-wrapper" ref="menuWrapper">
         <ul>
           <!--current-->
-          <li class="menu-item" v-for="good in goods">
+          <li class="menu-item" v-for="(good, index) in goods" :class="{current: index===currentIndex}">
             <span class="text border-1px">
               <span class="icon" v-if="good.type>=0" :class="classMap[good.type]"></span>{{good.name}}
             </span>
           </li>
         </ul>
       </div>
-      <div class="foods-wrapper">
+      <div class="foods-wrapper" ref="foodsWrapper">
         <ul>
           <li class="food-list food-list-hook" v-for="good in goods">
             <h1 class="title">{{good.name}}</h1>
@@ -47,11 +47,16 @@
 
 <script>
   import axios from 'axios'
+  import BScroll from 'better-scroll'
+  import Vue from 'vue'
+
   const OK = 0
   export default {
     data () {
       return {
-        goods: []
+        goods: [],
+        tops: [],
+        scrollY: 0
       }
     },
 
@@ -62,8 +67,54 @@
           const result = response.data
           if (result.code === OK) {
             this.goods = result.data
+            //在下次 DOM 更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的 DOM。
+            Vue.nextTick(() => {
+              //初始化滚动条
+              this._initScroll()
+              // 读取右侧所有分类的top值
+              this._initTops()
+            })
+
           }
         })
+    },
+
+    methods: {
+      _initScroll () {
+        // 创建分类列表的Scroll对象
+        new BScroll(this.$refs.menuWrapper, {})
+        // 创建food列表的Scroll对象
+        var foodsScroll = new BScroll(this.$refs.foodsWrapper, {
+          probeType: 3
+        })
+        // 绑定scroll监听
+        foodsScroll.on('scroll', (pos) => {
+          //console.log(pos.y)
+          this.scrollY = Math.abs(pos.y)
+        })
+      },
+
+      _initTops () {
+        var tops = this.tops
+        var top = 0
+        tops.push(top)
+        var lis = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
+        ;[].slice.call(lis).forEach(li => {
+          top += li.clientHeight
+          tops.push(top)
+        })
+        console.log(tops)
+      }
+    },
+
+    computed: {
+      currentIndex () {
+        const {tops, scrollY} = this
+        // scrollY大于或等于当前的top, 且小于下一个top
+        return tops.findIndex( (top,index) => {
+          return scrollY>=top && scrollY<tops[index+1]
+        })
+      }
     }
   }
 </script>
