@@ -4,7 +4,8 @@
       <div class="menu-wrapper" ref="menuWrapper">
         <ul>
           <!--current-->
-          <li class="menu-item" v-for="(good, index) in goods" :class="{current: index===currentIndex}">
+          <li class="menu-item" v-for="(good, index) in goods"
+              :class="{current: index===currentIndex}" @click="clickMenuItem(index, $event)">
             <span class="text border-1px">
               <span class="icon" v-if="good.type>=0" :class="classMap[good.type]"></span>{{good.name}}
             </span>
@@ -82,13 +83,16 @@
     methods: {
       _initScroll () {
         // 创建分类列表的Scroll对象
-        new BScroll(this.$refs.menuWrapper, {})
+        new BScroll(this.$refs.menuWrapper, {
+          click: true
+        })
         // 创建food列表的Scroll对象
-        var foodsScroll = new BScroll(this.$refs.foodsWrapper, {
-          probeType: 3
+        this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
+          probeType: 3,
+          click: true
         })
         // 绑定scroll监听
-        foodsScroll.on('scroll', (pos) => {
+        this.foodsScroll.on('scroll', (pos) => {
           //console.log(pos.y)
           this.scrollY = Math.abs(pos.y)
         })
@@ -104,6 +108,17 @@
           tops.push(top)
         })
         console.log(tops)
+      },
+
+      clickMenuItem (index, event) {
+        // 过滤掉原生DOM事件
+        if(!event._constructed) { // _constructed是better-scroll库添加的
+          return
+        }
+        console.log(index, event)
+        // 将右铡的列表滚动到对应的位置
+        var li = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')[index]
+        this.foodsScroll.scrollToElement(li, 300)
       }
     },
 
@@ -111,7 +126,7 @@
       currentIndex () {
         const {tops, scrollY} = this
         // scrollY大于或等于当前的top, 且小于下一个top
-        return tops.findIndex( (top,index) => {
+        return tops.findIndex((top,index) => {
           return scrollY>=top && scrollY<tops[index+1]
         })
       }
