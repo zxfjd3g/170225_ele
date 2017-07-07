@@ -45,6 +45,7 @@
           const result = response.data
           if (result.code===OK) {
             this.seller = result.data
+            this.seller.score = 3.6
             console.log('axios', this.seller)
           }
         })

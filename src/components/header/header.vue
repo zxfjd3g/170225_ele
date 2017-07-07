@@ -36,13 +36,7 @@
           <div class="detail-main">
             <div class="name">{{seller.name}}</div>
             <div class="star-wrapper">
-              <div class="star star-48">
-                <span class="star-item on"></span>
-                <span class="star-item on"></span>
-                <span class="star-item on"></span>
-                <span class="star-item half"></span>
-                <span class="star-item off"></span>
-              </div>
+              <star :score="seller.score" :size="48"></star>
             </div>
             <div class="title">
               <div class="line"></div>
@@ -74,6 +68,8 @@
 </template>
 
 <script>
+  import star from '../star/star.vue'
+
   export default {
     props: ['seller'],
 
@@ -91,6 +87,10 @@
       showDetail (isShow) {
         this.detailShow = isShow
       }
+    },
+
+    components: {
+      star
     }
   }
 </script>
@@ -238,46 +238,6 @@
           .star-wrapper
             height 24px
             text-align center
-            .star-24
-              .star-item
-                display inline-block
-                width 10px
-                height 10px
-                background-repeat no-repeat
-                background-size 10px 10px
-              .on
-                bg-star(star24_on)
-              .half
-                bg-star(star24_half)
-              .off
-                bg-star(star24_off)
-            .star-36
-              .star-item
-                display inline-block
-                width 15px
-                height 15px
-                background-repeat no-repeat
-                background-size 15px 15px
-              .on
-                bg-star(star36_on)
-              .half
-                bg-star(star36_half)
-              .off
-                bg-star(star36_off)
-            .star-48
-              .star-item
-                display inline-block
-                width 20px
-                height 20px
-                background-repeat no-repeat
-                background-size 20px 20px
-              .on
-                bg-star(star48_on)
-              .half
-                bg-star(star48_half)
-              .off
-                bg-star(star48_off)
-
 
           .title
             padding 28px 36px 24px
