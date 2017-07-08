@@ -46,8 +46,11 @@
           if (result.code===OK) {
             this.seller = result.data
             this.seller.score = 3.6
-            console.log('axios', this.seller)
+            console.log('axios3', this.seller)
           }
+        })
+        .catch(error => {
+          console.log(error)
         })
     },
 
