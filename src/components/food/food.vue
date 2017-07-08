@@ -35,29 +35,14 @@
 
         <div class="rating">
           <h1 class="title">商品评价</h1>
-          <div>ratingselect组件</div>
-          <!--
-          <div class="ratingselect">
-            <div class="rating-type border-1px">
-              <span class="block positive">
-                全部<span class="count">3</span>
-              </span>
-              <span class="block positive">
-                推荐<span class="count">2</span>
-              </span>
-              <span class="block negative active">
-                吐糟<span class="count">1</span>
-              </span>
-            </div>
-            <div class="switch">
-              <span class="icon-check_circle"></span>
-              <span class="text">只看有内容的评价</span>
-            </div>
-          </div>
-          -->
+          <ratingselect :desc="desc" :only-content="onlyContent"
+                        :ratings="food.ratings"
+                        :select-type="selectType"
+                        @setSelectType="setSelectType"
+                        @switchOnlyContent="switchOnlyContent"></ratingselect>
           <div class="rating-wrapper">
             <ul><!-- ctrl + shift +f  format-->
-              <li class="rating-item border-1px" v-for="rating in food.ratings">
+              <li class="rating-item border-1px" v-for="rating in filterRatings">
                 <div class="user">
                   <span class="name">{{rating.username}}</span>
                   <img width="12" height="12" class="avatar" :src="rating.avatar">
@@ -84,6 +69,8 @@
   import BScroll from 'better-scroll'
   import cartcontrol from '../cartcontrol/cartcontrol.vue'
   import split from '../split/split.vue'
+  import ratingselect from '../ratingselect/ratingselect.vue'
+  const ALL = 2 // 代表全部
 
   export default {
     props: {
@@ -93,7 +80,17 @@
 
     data () {
       return {
-        isShow: false
+        isShow: false,
+        onlyContent: true,
+        selectType: ALL
+      }
+    },
+
+    created() {
+      this.desc = {
+        all: '全部',
+        positive: '满意',
+        nagetive: '不满意'
       }
     },
 
@@ -112,12 +109,51 @@
             }
           })
         }
+      },
+
+      setSelectType (selectType) {
+        this.selectType = selectType
+
+        this.$nextTick(() => {
+          // 刷新列表的Scroll对象
+          this.scroll.refresh()
+        })
+      },
+
+      switchOnlyContent () {
+        this.onlyContent = !this.onlyContent
+
+        this.$nextTick(() => {
+          // 刷新列表的Scroll对象
+          this.scroll.refresh()
+        })
+      }
+    },
+
+    computed: {
+      filterRatings () {
+        if(!this.food.ratings) {
+          return
+        }
+        const {selectType, onlyContent} = this
+        // selectType: 0, 1, 2
+        // onlyContent: true false
+        return this.food.ratings.filter(rating => {
+          if(selectType===2) {
+            // 如果onlyContent为false, 直接返回true, 否则还要看text有没有值
+            return !onlyContent || !!rating.text
+          } else {
+            // 既要比较type, 还要比较content
+            return selectType=== rating.rateType && (!onlyContent || !!rating.text)
+          }
+        })
       }
     },
 
     components: {
       cartcontrol,
-      split
+      split,
+      ratingselect
     }
   }
 </script>
