@@ -41,6 +41,11 @@
           </li>
         </ul>
       </div>
+      <shopcart :food-list="foodList"
+                :delivery-price="seller.deliveryPrice"
+                :min-price="seller.minPrice"
+                :clear-cart="clearCart"
+                :update-food-count="updateFoodCount"></shopcart>
     </div>
     <div class="food"></div>
   </div>
@@ -52,9 +57,11 @@
   import Vue from 'vue'
 
   import cartcontrol from '../cartcontrol/cartcontrol.vue'
+  import shopcart from '../shopcart/shopcart.vue'
 
   const OK = 0
   export default {
+    props: ['seller'],
     data () {
       return {
         goods: [],
@@ -142,6 +149,12 @@
             food.count--
           }
         }
+      },
+
+      clearCart () {
+        this.foodList.forEach(food => {
+          food.count = 0
+        })
       }
     },
 
@@ -152,11 +165,23 @@
         return tops.findIndex((top,index) => {
           return scrollY>=top && scrollY<tops[index+1]
         })
+      },
+      foodList () { // 返回所有count>0的food的数组
+        const foods = []
+        this.goods.forEach(good => {
+          good.foods.forEach(food => {
+            if(food.count) {
+              foods.push(food)
+            }
+          })
+        })
+        return foods
       }
     },
 
     components: {
-      cartcontrol
+      cartcontrol,
+      shopcart
     }
   }
 </script>
