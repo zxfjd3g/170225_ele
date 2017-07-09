@@ -13,14 +13,24 @@
           <div class="price">￥{{totalPrice}}</div>
           <div class="desc">另需配送费￥{{deliveryPrice}}元</div>
         </div>
-        <div class="content-right">
+        <div class="content-right" @click="pay">
           <div class="pay" :class="totalPrice<minPrice?'not-enough':'enough'">
             {{payText}}
           </div>
         </div>
       </div>
 
-      <div class="ball-container"></div>
+      <div class="ball-container">
+        <transition name="drop" v-for="(ball, index) in balls" :key="index"
+                    @before-enter="beforeDrop"
+                    @enter="dropping"
+                    @after-enter="afterDrop"
+                    v-bind:css="false">
+          <div class="ball"  v-show="ball.isShow">
+            <div class="inner inner-hook"></div>
+          </div>
+        </transition>
+      </div>
 
       <transition name="fold">
         <div class="shopcart-list" v-show="listShow">
@@ -66,7 +76,15 @@
 
     data () {
       return {
-        isShow: false
+        isShow: false,
+        balls: [
+          {isShow: false},
+          {isShow: false},
+          {isShow: false},
+          {isShow: false},
+          {isShow: false}
+        ],
+        droppingBalls: []  // 保存多个执行动画的ball
       }
     },
 
@@ -124,6 +142,76 @@
     methods: {
       toogleList () {
         this.isShow = !this.isShow
+      },
+
+      /*
+      让一个隐藏的小球启动一个显示的动画
+       */
+      drop (startEl) {
+        // 找到隐藏的小球
+        const ball = this.balls.find(ball => !ball.isShow)
+        // 显示它
+        if(ball) {
+          ball.isShow = true
+          ball.startEl = startEl
+          this.droppingBalls.push(ball)
+        }
+      },
+
+      /*
+      指定el的起始位置
+       */
+      beforeDrop (el) {
+        console.log('before()', Date.now())
+        // 找到对应的ball
+        const ball = this.droppingBalls.shift() // 移除第一个
+
+        var offsetY = 0
+        var offsetX = 0
+        // 计算
+        const {left, top} = ball.startEl.getBoundingClientRect()
+        const elLeft = 32
+        const elBottom = 22
+        offsetX = left - elLeft
+        offsetY = -(window.innerHeight - top - elBottom)
+
+        // 指定transform样式
+        el.style.transform = `translate3d(0, ${offsetY}px, 0)`
+        el.children[0].style.transform = `translate3d(${offsetX}px, 0, 0)`
+
+        // 保存ball
+        el.ball = ball
+      },
+
+      /*
+      指定el的结束位置
+       */
+      dropping (el) {
+        // 强制重排重绘
+        var temp = el.clientHeight
+        console.log('dropping()', Date.now())
+        // 异步指定
+        this.$nextTick(() => {
+          // 指定transform样式
+          el.style.transform = 'translate3d(0, 0, 0)'
+          el.children[0].style.transform = 'translate3d(0, 0, 0)'
+        })
+      },
+      /*
+      隐藏el
+       */
+      afterDrop (el) {
+        console.log('afterDrop()', Date.now())
+        // 必须延迟更新状态
+        setTimeout(() => {
+          el.ball.isShow = false
+        }, 400)
+      },
+
+      pay() {
+        if(this.totalPrice>=this.minPrice) {
+          alert(`支付${this.totalPrice+this.deliveryPrice}`)
+        }
       }
     },
 

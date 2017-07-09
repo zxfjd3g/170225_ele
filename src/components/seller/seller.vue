@@ -90,6 +90,7 @@
     },
 
     created () {
+      console.log('seller created()')
       this.classMap = ['decrease', 'discount', 'special', 'invoice', 'guarantee']
       if(this.seller.name) { // 从其它路由切换过来
         this._initScroll()

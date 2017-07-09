@@ -37,15 +37,15 @@
 
     methods: {
       setType (type, event) {
-        if(!event._constructed) {
+        /*if(!event._constructed) {
           return
-        }
+        }*/
         this.$emit('setSelectType', type)
       },
       switchOnlyContent (event) {
-        if(!event._constructed) {
+        /*if(!event._constructed) {
           return
-        }
+        }*/
         this.$emit('switchOnlyContent')
       }
     }

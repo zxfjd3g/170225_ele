@@ -33,27 +33,29 @@
 
     created () {
       // 使用vue-resource发送ajax请求express提供的接口
-      this.$http.get('/api/seller')
+      /*this.$http.get('/api/seller')
         .then(response => {
           const result = response.body
           if (result.code===OK) {
             this.seller = result.data
             console.log('vue-resource', this.seller)
           }
-        })
+        })*/
       // 使用axios发送ajax请求mockjs提供的接口
-      axios.get('/api2/seller')
-        .then(response => {
-          const result = response.data
-          if (result.code===OK) {
+      setTimeout(() => {
+        axios.get('/api2/seller')
+            .then(response => {
+            const result = response.data
+            if (result.code===OK) {
             this.seller = result.data
             this.seller.score = 3.6
             console.log('axios3', this.seller)
           }
         })
         .catch(error => {
-          console.log(error)
+            console.log(error)
         })
+      }, 1000)
     },
 
     components: {

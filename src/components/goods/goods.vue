@@ -45,7 +45,8 @@
                 :delivery-price="seller.deliveryPrice"
                 :min-price="seller.minPrice"
                 :clear-cart="clearCart"
-                :update-food-count="updateFoodCount"></shopcart>
+                :update-food-count="updateFoodCount"
+                ref="shopcart"></shopcart>
     </div>
     <food :food="selectFood" :update-food-count="updateFoodCount" ref="food"></food>
   </div>
@@ -146,6 +147,8 @@
           } else {
             food.count++
           }
+          // 通知shopcart组件对象启动一个小球的显示动画
+          this.$refs.shopcart.drop(event.target)
         } else { // 减少
           if(food.count) {
             food.count--
